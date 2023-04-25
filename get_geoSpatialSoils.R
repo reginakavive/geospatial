@@ -1,21 +1,4 @@
-#################################################################################################################
-## sourcing required packages 
-#################################################################################################################
-packages_required <- c("terra", "sf", "rgl", "rgdal", "sp", "geodata", "tidyverse", "apsimx", "geosphere", "countrycode")
 
-# check and install packages that are not yet installed
-installed_packages <- packages_required %in% rownames(installed.packages())
-if(any(installed_packages == FALSE)){
-  install.packages(packages_required[!installed_packages])}
-
-# load required packages
-invisible(lapply(packages_required, library, character.only = TRUE))
-
-
-#################################################################################################################
-#################################################################################################################
-
-#' 
 #################################################################################################################
 ## sourcing required packages 
 #################################################################################################################
@@ -47,38 +30,24 @@ invisible(lapply(packages_required, library, character.only = TRUE))
 #' @examples get_geoSpatial_soiliSDA(country = "Rwanda", useCaseName = "Rwanda_RAB", Crop = "Potato", overwrite = TRUE)
 get_geoSpatial_soiliSDA <- function(country, useCaseName, Crop, overwrite){
   
+  #TODO create a look up table to check use case - country names
   ## get country abbreviation to used in gdam function
   countryCC <- countrycode(country, origin = 'country.name', destination = 'iso3c')
   
   ## create a directory to store the cropped data: 
-  pathOut <- paste("./EiA_DA_AW_V1/UseCase_", useCaseName, "/", Crop, "/raw/soil/iSDA", sep="")
+  pathOut <- paste("./EiA_DA_AW_V1/AgWise_Data/data_sourcing/UseCase_", useCaseName, "/", Crop, "/raw/Soil/iSDA", sep="")
   
   if (!dir.exists(pathOut)){
-    if(!dir.exists(paste("./EiA_DA_AW_V1/UseCase_", useCaseName, sep=""))){
-      dir.create(file.path(mainDir = "./EiA_DA_AW_V1/", subDir = paste("UseCase_", useCaseName, sep="")))
-    }
-    if(!dir.exists( paste("./EiA_DA_AW_V1/UseCase_", useCaseName,"/", Crop, sep=""))){
-      dir.create(file.path(mainDir = paste("./EiA_DA_AW_V1/UseCase_", useCaseName,"/", sep=""), subDir = Crop))
-    }
-    if(!dir.exists(paste("./EiA_DA_AW_V1/UseCase_", useCaseName,"/", Crop, "/", "raw", sep=""))){
-      dir.create(file.path(mainDir = paste("./EiA_DA_AW_V1/UseCase_", useCaseName,"/", Crop, "/", sep=""), subDir = "raw"))
-    }
-    if(!dir.exists(paste("./EiA_DA_AW_V1/UseCase_", useCaseName,"/", Crop, "/raw/soil", sep=""))){
-      dir.create(file.path(mainDir = paste("./EiA_DA_AW_V1/UseCase_", useCaseName,"/", Crop, "/raw/", sep=""), subDir = "Soil"))
-    }
-    if(!dir.exists(pathOut)){
-      dir.create(file.path(mainDir = paste("./EiA_DA_AW_V1/UseCase_", useCaseName,"/", Crop, "/raw/Soil/",  sep=""), subDir = "iSDA"))
-    }
+    dir.create(file.path(pathOut), recursive = TRUE)
   }
-  
   
   ## read the relevant shape file from gdam to be used to crop the global data
   countryShp <- geodata::gadm(countryCC, level = 3, path='.')
   
   ## read soil layers and crop
-  listRaster_iSDA <-list.files(path="./EiA_DA_AW_V1/Global_GeoData/Landing/Soil/iSDA", pattern=".tif$")
+  listRaster_iSDA <-list.files(path="./EiA_DA_AW_V1/AgWise_Data/data_sourcing/Global_GeoData/Landing/Soil/iSDA", pattern=".tif$")
   
-  readLayers_iSDA <- terra::rast(paste("./EiA_DA_AW_V1/Global_GeoData/Landing/Soil/iSDA", listRaster_iSDA, sep="/"))
+  readLayers_iSDA <- terra::rast(paste("./EiA_DA_AW_V1/AgWise_Data/data_sourcing/Global_GeoData/Landing/Soil/iSDA", listRaster_iSDA, sep="/"))
   
   croppedLayer_iSDA <- terra::crop(readLayers_iSDA, countryShp)
   
@@ -112,34 +81,19 @@ get_geoSpatial_soilGrids <- function(country, useCaseName, Crop, overwrite){
   countryCC <- countrycode(country, origin = 'country.name', destination = 'iso3c')
   
   ## create a directory to store the cropped data: 
-  pathOut <- paste("./EiA_DA_AW_V1/UseCase_", useCaseName, "/", Crop, "/raw/Soil/soilGrids", sep="")
+  pathOut <- paste("./EiA_DA_AW_V1/AgWise_Data/data_sourcing/UseCase_", useCaseName, "/", Crop, "/raw/Soil/soilGrids", sep="")
   
   if (!dir.exists(pathOut)){
-    if(!dir.exists(paste("./EiA_DA_AW_V1/UseCase_", useCaseName, sep=""))){
-      dir.create(file.path(mainDir = "./EiA_DA_AW_V1/", subDir = paste("UseCase_", useCaseName, sep="")))
-    }
-    if(!dir.exists( paste("./EiA_DA_AW_V1/UseCase_", useCaseName,"/", Crop, sep=""))){
-      dir.create(file.path(mainDir = paste("./EiA_DA_AW_V1/UseCase_", useCaseName,"/", Crop ,sep="")))
-    }
-    if(!dir.exists(paste("./EiA_DA_AW_V1/UseCase_", useCaseName,"/", Crop, "/", "raw", sep=""))){
-      dir.create(file.path(mainDir = paste("./EiA_DA_AW_V1/UseCase_", useCaseName,"/", Crop, "/", sep=""), subDir = "raw"))
-    }
-    if(!dir.exists(paste("./EiA_DA_AW_V1/UseCase_", useCaseName,"/", Crop, "/raw/Soil", sep=""))){
-      dir.create(file.path(mainDir = paste("./EiA_DA_AW_V1/UseCase_", useCaseName,"/", Crop, "/raw/", sep=""), subDir = "Soil"))
-    }
-    if(!dir.exists(pathOut)){
-      dir.create(file.path(mainDir = paste("./EiA_DA_AW_V1/UseCase_", useCaseName,"/", Crop, "/raw/Soil", sep=""), subDir = "soilGrids"))
-    }
+    dir.create(file.path(pathOut), recursive = TRUE)
   }
-  
   
   ## read the relevant shape file from gdam to be used to crop the global data
   countryShp <- geodata::gadm(countryCC, level = 3, path='.')
   
   ## read soil layers and crop
-  listRaster_soilGrids <-list.files(path="./EiA_DA_AW_V1/Global_GeoData/Landing/Soil/soilGrids", pattern=".tif$")
+  listRaster_soilGrids <-list.files(path="./EiA_DA_AW_V1/AgWise_Data/data_sourcing/Global_GeoData/Landing/Soil/soilGrids", pattern=".tif$")
   
-  readLayers_soilGrids <- terra::rast(paste("./EiA_DA_AW_V1/Global_GeoData/Landing/Soil/soilGrids", listRaster_soilGrids, sep="/"))
+  readLayers_soilGrids <- terra::rast(paste("./EiA_DA_AW_V1/AgWise_Data/data_sourcing/Global_GeoData/Landing/Soil/soilGrids", listRaster_soilGrids, sep="/"))
   
   croppedLayer_soilGrids <- terra::crop(readLayers_soilGrids, countryShp)
   
@@ -172,20 +126,13 @@ soil_iSDA_transform <- function(useCaseName, Crop, resFactor=1, overwrite = FALS
   
   ## create a directory to store the transformed data: with DA this will be in "usecaseName/crop/transform"
   
-  pathOut <- paste("./EiA_DA_AW_V1/UseCase_", useCaseName, "/", Crop, "/transform/Soil/iSDA", sep="")
+  pathOut <- paste("./EiA_DA_AW_V1/AgWise_Data/data_sourcing/UseCase_", useCaseName, "/", Crop, "/transform/Soil/iSDA", sep="")
   
-  if (!dir.exists(paste("./EiA_DA_AW_V1/UseCase_", useCaseName, "/", Crop, "/transform", sep=""))){
-    dir.create(paste("./EiA_DA_AW_V1/UseCase_", useCaseName, "/", Crop, "/transform", sep=""))
-  }
-  if (!dir.exists(paste("./EiA_DA_AW_V1/UseCase_", useCaseName, "/", Crop, "/transform/Soil", sep=""))){
-    dir.create(paste("./EiA_DA_AW_V1/UseCase_", useCaseName, "/", Crop, "/transform/Soil", sep=""))
-  }
   if (!dir.exists(pathOut)){
-    dir.create(pathOut)
+    dir.create(file.path(pathOut), recursive = TRUE)
   }
   
-  
-  pathIn <- paste("./EiA_DA_AW_V1/UseCase_", useCaseName, "/",Crop, "/raw/Soil/iSDA", sep="")
+  pathIn <- paste("./EiA_DA_AW_V1/AgWise_Data/data_sourcing/UseCase_", useCaseName, "/",Crop, "/raw/Soil/iSDA", sep="")
   
   ## read, crop and save 
   listRaster_iSDA <-list.files(path=pathIn, pattern=".tif$")
@@ -308,20 +255,12 @@ soil_iSDA_transform <- function(useCaseName, Crop, resFactor=1, overwrite = FALS
 soil_soilGrids_transform <- function(useCaseName, Crop, resFactor=1, overwrite = FALSE, pathOut){
   
   ## create a directory to store the transformed data: with DA this will be in "usecaseName/crop/transform"
-  pathOut <- paste("./EiA_DA_AW_V1/UseCase_", useCaseName, "/", Crop, "/transform/Soil/soilGrids", sep="")
-  
-  if (!dir.exists(paste("./EiA_DA_AW_V1/UseCase_", useCaseName, "/", Crop, "/transform", sep=""))){
-    dir.create(paste("./EiA_DA_AW_V1/UseCase_", useCaseName, "/", Crop, "/transform", sep=""))
-  }
-  if (!dir.exists(paste("./EiA_DA_AW_V1/UseCase_", useCaseName, "/", Crop, "/transform/Soil", sep=""))){
-    dir.create(paste("./EiA_DA_AW_V1/UseCase_", useCaseName, "/", Crop, "/transform/Soil", sep=""))
-  }
+  pathOut <- paste("./EiA_DA_AW_V1/AgWise_Data/data_sourcing/UseCase_", useCaseName, "/", Crop, "/transform/Soil/soilGrids", sep="")
   if (!dir.exists(pathOut)){
-    dir.create(pathOut)
+    dir.create(file.path(pathOut), recursive = TRUE)
   }
   
-  
-  pathIn <- paste("./EiA_DA_AW_V1/UseCase_", useCaseName, "/",Crop, "/raw/Soil/soilGrids", sep="")
+  pathIn <- paste("./EiA_DA_AW_V1/AgWise_Data/data_sourcing/UseCase_", useCaseName, "/",Crop, "/raw/Soil/soilGrids", sep="")
   
   ## read, crop and save 
   listRaster_soilGrids <-list.files(path=pathIn, pattern=".tif$")
