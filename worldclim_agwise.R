@@ -1,3 +1,5 @@
+## Functions to source worldclim future data and bioclimatic historical data
+
 # source required packages
 list.of.packages <- c("terra","raster","geodata","sf")
 if (!require("pacman")) install.packages("pacman")
@@ -5,9 +7,7 @@ if (!require("pacman")) install.packages("pacman")
 pacman::p_load(list.of.packages,character.only = T)
 
 
-
 #' Extract worldclim bioclimatic data
-
 #' @coords data.frame with 2 columns (Latitude and Longitude)
 #' @raster optional boolean to export results in SpatRast (terra) format
 #' @res    resolution
@@ -17,26 +17,22 @@ pacman::p_load(list.of.packages,character.only = T)
 #' @return data.frame or SpatRast
 #' @examples
 #' worldclim_bio(res, country,useCaseName,Crop, raster = TRUE, coords = NULL)
-#' worldclim_bio( 10, "Rwanda","Rwasis", "Maize", TRUE, NULL)
-
-
+#' worldclim_bio( 10, "Rwanda","Rwanda_RAB", "Maize", TRUE, NULL)
 
 
 #Extracts worldclim historical bioclimatic data (1970-2000)
 worldclim_bio<- function(res, country,useCaseName,Crop, raster = TRUE, coords = NULL){
   
   #lookup usecasename, country and crop names from given existing lists
-  #path to existing list to be specified... check file format
+  #path to existing list to be specified
   # stopifnot(country %in% countrylist)
   # stopifnot(useCaseName %in% usecaselist)
   # stopifnot(Crop %in% croplist)
   
   #specify pathOut
-  #AgWISE folder details to be specified..  EiA_DA_AW_V1
   pathOut<-paste0("/home/jovyan/agwise/AgWise_Data/data_sourcing/UseCase_", useCaseName, "/", Crop, "/raw/worldclim/historical/", sep="")
   ifelse(!dir.exists(file.path(pathOut)), dir.create(file.path(pathOut),recursive = TRUE), FALSE)
   
-  #define function elements and paths
   #downloaded file path 
   ifelse(!dir.exists(file.path("/home/jovyan/agwise/AgWise_Data/data_sourcing/Global_GeoData/Landing/Worldclim/historical/")), 
          dir.create(file.path("/home/jovyan/agwise/AgWise_Data/data_sourcing/Global_GeoData/Landing/Worldclim/historical/"),recursive = TRUE), FALSE)
@@ -120,7 +116,7 @@ worldclim_bio<- function(res, country,useCaseName,Crop, raster = TRUE, coords = 
   }
   
 }
-worldclim_bio( 10, "Rwanda","Rwasis", "Maize", TRUE, NULL)
+
 
 
 
@@ -171,13 +167,13 @@ worldclim_future <- function(var, res,  ssp, model, period, country,useCaseName,
   url<- "/home/jovyan/agwise/AgWise_Data/data_sourcing/Global_GeoData/Landing/Worldclim/future/"
   url_uc<- pathOut
   
-  # url to download from  ##future climate data dddd
+  # url to download from  ##future climate data 
   url_download<-"https://geodata.ucdavis.edu/cmip6/"
   
   stopifnot(res %in% c("2.5", "5", "10", "2.5m", "5m", "10m"))
   stopifnot(var %in% c( "tmin", "tmax", "prec", "bio","bioc"))
   stopifnot(ssp %in% c("126","245","370","585"))
-  stopifnot(period %in% c("2021-2040", "2041-2060", "2061-2080", "2081-2100")) #dddd
+  stopifnot(period %in% c("2021-2040", "2041-2060", "2061-2080", "2081-2100"))
   stopifnot(model %in% c("ACCESS-CM2","ACCESS-ESM1-5","AWI-CM-1-1-MR","BCC-CSM2-MR","CMCC-ESM2","CNRM-CM6-1-HR","CNRM-CM6-1","MPI-ESM1-2-LR",
                          "CNRM-ESM2-1","CanESM5-CanOE","CanESM5","EC-Earth3-Veg-LR","EC-Earth3-Veg","FIO-ESM-2-0","GFDL-ESM4","GISS-E2-1-G","UKESM1-0-LL",
                          "GISS-E2-1-H","HadGEM3-GC31-LL","INM-CM4-8","INM-CM5-0","IPSL-CM6A-LR","MIROC-ES2L","MIROC6","MPI-ESM1-2-HR","MRI-ESM2-0"))
@@ -203,12 +199,12 @@ worldclim_future <- function(var, res,  ssp, model, period, country,useCaseName,
         
         file<-paste0("wc2.1_",res,"_",var,"_",model,"_",ssp,"_",period)
         
-        if(!file.exists(paste0(url, file,".tif"))){    #if not available download,  and stack, retun rasterstack dddd
+        if(!file.exists(paste0(url, file,".tif"))){    #if not available download,  and stack, retuRn rasterstack 
           options(timeout=0)
           download.file(paste0(url_download,model,"/",ssp,"/",file,".tif"), paste0(url,file,".tif"), mode="wb")
           
         }
-        #suppressWarnings(unzip(paste0(url, file,".zip"), exdir=url, overwrite=FALSE))  dddd
+        #suppressWarnings(unzip(paste0(url, file,".zip"), exdir=url, overwrite=FALSE)) 
         
         #file_url<-paste0(url,"share/spatial03/worldclim/cmip6/7_fut/",res,"/",model,"/",ssp,"/")
         
